@@ -5,12 +5,18 @@ Creater : Aakar Jinwala
 import pandas as pd
 import numpy as np
 import time
-from string import ascii_uppercase
+import sys
 
 def main():
 
-    filename = "test.txt"
-    
+    # configuration details
+    print("\nPandas version ",pd.__version__ )
+    print("\nPython Version", sys.version)
+    print("\n")
+
+    #filename = "test.txt"
+    filename = str(sys.argv[1])
+
     # reading data into pandas dataframe
     df = pd.read_csv(filename, sep=",", header=None)
     df.columns = ["user", "unixtimestamp"]
@@ -33,17 +39,14 @@ def main():
     
     # define new label called session_id for stroing the session
     df['session_id'] = session_id.map(pd.Series(numArray))
-    print(df.shape)
-    print(df)
+    #print(df.shape)
+    #print(df)
 
-    # Count as per session IDs
+    # Count as per session IDs with session_id as index of resultatnt dataframe
     df2 = df.groupby(['session_id'])['session_id'].count() 
-    print(df2)
+    #print(df2)
 
-    maxval = df2
-    print(maxval)
-
-    # Find maximum value in each session
+    # Find maximum value in each session with session_id as index of resultatnt dataframe
     df3 = df.groupby(['session_id'])['unixtimestamp'].max()
 
     # concatenate the two dataframes based on session_id as index
@@ -52,14 +55,16 @@ def main():
     #print(result)
     #print(result.shape)
 
+    # get rows which are having maxium count value (i.e.) session having maximum entries
     result_count = result.loc[result['count'] == result['count'].max()]
     
-    # Select row having maximum timestamp
+    # Select row having maximum timestamp value, output will be single 
     result_count = result_count.loc[result_count['max_timestamp'] == result_count['max_timestamp'].max()]
     #print(result_count)
 
-    # getting user Id corresponding to the value
+    # getting user Id corresponding to the session Id, 
     userId = df.loc[df['session_id'] == result_count.index.get_values()[0], 'user'].iloc[0]
+    
     # printing out the final output
     print(userId,result_count['count'].iloc[0],result_count['max_timestamp'].iloc[0],sep=',')
 
